@@ -1,0 +1,11 @@
+order_id,food_item,order_time,order_value,order_frequency,loyalty_program,delivery_distance,delivery_method,route_taken,route_type,route_efficiency,traffic_condition,weather_condition,traffic_avoidance,location,age,gender,order_history,customer_rating,preferred_cuisine
+ORD-1001,Pizza,24-05-2024,680.0,Weekly,Yes,10.5,Bike,Route_2,Mixed,0.45,High,Rainy,No,Ahmedabad,28,Male,25,4,Italian
+ORD-1002,Burger,24-05-2024,350.0,Weekly,Yes,3.2,Bike,Route_1,Bike-friendly,0.85,Low,Sunny,Yes,Delhi,24,Female,45,5,American
+ORD-1003,Briyani rice,24-05-2024,1250.0,Weekly,No,13.8,Car,Route_4,Car-only,0.25,High,Snowy,No,Bangalore,39,Male,12,3,Asian
+ORD-1004,Salad,24-05-2024,420.0,Weekly,Yes,2.0,Walk,Route_1,Bike-friendly,0.92,Low,Sunny,Yes,Mumbai,31,Female,48,5,Mediterranean
+ORD-1005,Pasta,24-05-2024,780.0,Monthly,No,8.5,Car,Route_3,Car-only,0.60,Medium,Rainy,Yes,Hyderabad,45,Male,8,4,Italian
+ORD-1006,Cup cake,24-05-2024,250.0,Weekly,Yes,4.0,Bike,Route_2,Mixed,0.70,Medium,Sunny,No,Pune,22,Female,30,5,Mexican
+ORD-1007,Fried chicken,24-05-2024,890.0,Monthly,No,12.2,Bike,Route_5,Bike-friendly,0.38,High,Rainy,No,Chennai,34,Other,15,3,American
+ORD-1008,Chicken wings,24-05-2024,310.0,Weekly,Yes,2.5,Bike,Route_1,Mixed,0.88,Low,Sunny,Yes,Jaipur,29,Male,40,4,American
+ORD-1009,Taccos,24-05-2024,950.0,Weekly,Yes,14.5,Car,Route_4,Car-only,0.20,High,Snowy,No,Kolkata,52,Female,50,4,Mexican
+ORD-1010,Shawarma,24-05-2024,540.0,Monthly,No,6.0,Bike,Route_2,Mixed,0.65,Medium,Sunny,Yes,Lucknow,27,Male,4,2,Mediterranean

@@ -1,0 +1,95 @@
+{
+  "metrics": {
+    "MAE": 0.2705,
+    "RMSE": 0.392,
+    "MSE": 0.1537,
+    "R2_Score": 0.9954,
+    "Median_AE": 0.1946,
+    "Explained_Variance": 0.9954
+  },
+  "summary": {
+    "initial_records": 200000,
+    "final_records": 200000,
+    "columns_count": 20,
+    "missing_values": 0,
+    "duplicate_rows": 0,
+    "negative_delays_removed": 0,
+    "dropped_columns": [
+      "restaurant_id"
+    ],
+    "delay_min": 0.01,
+    "delay_max": 20.0,
+    "order_value_min": 103.04,
+    "order_value_max": 1500.0
+  },
+  "hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 25,
+    "min_samples_split": 3,
+    "min_samples_leaf": 1,
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "top_features": [
+    {
+      "feature": "route_efficiency",
+      "importance": 0.09524909371574669
+    },
+    {
+      "feature": "delivery_distance",
+      "importance": 0.09149681176894812
+    },
+    {
+      "feature": "order_day",
+      "importance": 0.08328977719559284
+    },
+    {
+      "feature": "age",
+      "importance": 0.07790053455563818
+    },
+    {
+      "feature": "order_history",
+      "importance": 0.07453841541958837
+    },
+    {
+      "feature": "order_month",
+      "importance": 0.0674357292555204
+    },
+    {
+      "feature": "order_dayofweek",
+      "importance": 0.04492446464054632
+    },
+    {
+      "feature": "customer_rating",
+      "importance": 0.03448236495838668
+    },
+    {
+      "feature": "route_taken_Route_1",
+      "importance": 0.012810583602654389
+    },
+    {
+      "feature": "route_type_Mixed",
+      "importance": 0.011920818488221886
+    },
+    {
+      "feature": "weather_condition_Sunny",
+      "importance": 0.011502595408902194
+    },
+    {
+      "feature": "weather_condition_Rainy",
+      "importance": 0.011368230758547452
+    },
+    {
+      "feature": "route_taken_Route_5",
+      "importance": 0.01130316228276907
+    },
+    {
+      "feature": "traffic_condition_High",
+      "importance": 0.011276795115040079
+    },
+    {
+      "feature": "route_type_Car-only",
+      "importance": 0.011038284893445416
+    }
+  ]
+}

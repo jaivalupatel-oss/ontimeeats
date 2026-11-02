@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery Delay Prediction | DSML Project</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-area">
+                <span class="badge">DSML Project</span>
+                <h1>Food Delivery Delay Prediction</h1>
+                <p class="subtitle">Presented by: <strong>Jaival Patel</strong></p>
+            </div>
+            <div class="model-badge">
+                <span class="badge-tag">Model: Random Forest Regressor</span>
+                <span class="badge-tag">Dataset: 200,000 Real Orders</span>
+                <span class="badge-tag">R² Fit: 99.54%</span>
+                <span class="badge-tag status-live">● System Active</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Top KPI Metrics Banner -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-label">Mean Absolute Error (MAE)</span>
+                <h3 class="kpi-value text-blue" id="kpi-mae">0.27 min</h3>
+                <span class="kpi-sub">On 40,000 unseen test orders</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Root Mean Squared Error (RMSE)</span>
+                <h3 class="kpi-value text-purple" id="kpi-rmse">0.39 min</h3>
+                <span class="kpi-sub">Penalizes extreme deviations</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">R² Goodness of Fit</span>
+                <h3 class="kpi-value text-green" id="kpi-r2">99.54%</h3>
+                <span class="kpi-sub">Delay variance explained</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Dataset Quality & Leakage</span>
+                <h3 class="kpi-value text-teal">0 Null / 0 Dups</h3>
+                <span class="kpi-sub">Strict anti-leakage fit</span>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="tab-single">
+                <span>⚡</span> Single Order Inference
+            </button>
+            <button class="nav-tab" data-tab="tab-simulator">
+                <span>🔄</span> What-If Route & Vehicle Simulator
+            </button>
+            <button class="nav-tab" data-tab="tab-batch">
+                <span>📋</span> Operations Fleet Batch Dispatch
+            </button>
+            <button class="nav-tab" data-tab="tab-analytics">
+                <span>📊</span> Model Diagnostics & Analytics
+            </button>
+        </div>
+
+        <!-- ==================== TAB 1: SINGLE ORDER INFERENCE ==================== -->
+        <div id="tab-single" class="tab-content active">
+            <div class="workspace-grid">
+                <!-- Input Form Card -->
+                <section class="card form-card">
+                    <div class="card-header">
+                        <h2>📦 Live Order Delay Inference</h2>
+                        <p>Enter order details or use preset scenarios to estimate delivery delay in minutes.</p>
+                    </div>
+
+                    <div class="preset-bar">
+                        <span class="preset-label">Quick Presets:</span>
+                        <button type="button" class="btn-preset active" id="btn-slide9">Slide 9 Example (Rainy/High Traffic)</button>
+                        <button type="button" class="btn-preset" id="btn-clear-sunny">Fast Express (Sunny/Low Traffic)</button>
+                        <button type="button" class="btn-preset" id="btn-worst-case">Severe Congestion (Snowy/Rush Hour)</button>
+                    </div>
+
+                    <form id="prediction-form">
+                        <!-- Delivery Information -->
+                        <div class="form-section-title">1. Delivery & Route Parameters</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="delivery_distance">Delivery Distance (km): <strong id="val-distance">10.5</strong></label>
+                                <input type="range" id="delivery_distance" name="delivery_distance" min="2.0" max="15.0" step="0.1" value="10.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="route_efficiency">Route Efficiency (0 to 1): <strong id="val-efficiency">0.45</strong></label>
+                                <input type="range" id="route_efficiency" name="route_efficiency" min="0.01" max="0.99" step="0.01" value="0.45">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="delivery_method">Delivery Method</label>
+                                <select id="delivery_method" name="delivery_method">
+                                    <option value="Bike" selected>Bike</option>
+                                    <option value="Car">Car</option>
+                                    <option value="Walk">Walk</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="route_taken">Route Taken</label>
+                                <select id="route_taken" name="route_taken">
+                                    <option value="Route_1">Route 1 (Express Arterial)</option>
+                                    <option value="Route_2" selected>Route 2 (City Center)</option>
+                                    <option value="Route_3">Route 3 (Ring Road)</option>
+                                    <option value="Route_4">Route 4 (Residential Corridors)</option>
+                                    <option value="Route_5">Route 5 (Industrial Bypass)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="route_type">Route Corridor Type</label>
+                                <select id="route_type" name="route_type">
+                                    <option value="Mixed" selected>Mixed Traffic</option>
+                                    <option value="Bike-friendly">Bike-friendly Lane</option>
+                                    <option value="Car-only">Car-only Highway</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Environmental Factors -->
+                        <div class="form-section-title">2. Environmental & Traffic Conditions</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="traffic_condition">Traffic Condition</label>
+                                <select id="traffic_condition" name="traffic_condition">
+                                    <option value="Low">Low (Free Flow)</option>
+                                    <option value="Medium">Medium (Moderate)</option>
+                                    <option value="High" selected>High (Congested)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="weather_condition">Weather Condition</label>
+                                <select id="weather_condition" name="weather_condition">
+                                    <option value="Sunny">Sunny / Clear</option>
+                                    <option value="Rainy" selected>Rainy</option>
+                                    <option value="Snowy">Snowy</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="traffic_avoidance">Dynamic Avoidance</label>
+                                <select id="traffic_avoidance" name="traffic_avoidance">
+                                    <option value="Yes">Yes (GPS Rerouting)</option>
+                                    <option value="No" selected>No (Standard Route)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Order & Customer Specifics -->
+                        <div class="form-section-title">3. Order & Customer Context</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="order_value">Order Value (₹): <strong id="val-order-value">₹680</strong></label>
+                                <input type="range" id="order_value" name="order_value" min="103" max="1500" step="5" value="680">
+                            </div>
+                            <div class="form-group">
+                                <label for="food_item">Food Item (21 Catalog Items)</label>
+                                <select id="food_item" name="food_item">
+                                    <option value="Pizza" selected>Pizza</option>
+                                    <option value="Burger">Burger</option>
+                                    <option value="Briyani rice">Briyani rice</option>
+                                    <option value="Fried chicken">Fried chicken</option>
+                                    <option value="Pasta">Pasta</option>
+                                    <option value="Chicken wings">Chicken wings</option>
+                                    <option value="Beef pie">Beef pie</option>
+                                    <option value="Burritos">Burritos</option>
+                                    <option value="Chicken pie">Chicken pie</option>
+                                    <option value="Chicken rice">Chicken rice</option>
+                                    <option value="CoffeeBoba tea">CoffeeBoba tea</option>
+                                    <option value="Cookie">Cookie</option>
+                                    <option value="Cup cake">Cup cake</option>
+                                    <option value="Dumplings">Dumplings</option>
+                                    <option value="PastrySmoothie">PastrySmoothie</option>
+                                    <option value="Salad">Salad</option>
+                                    <option value="Shawarma">Shawarma</option>
+                                    <option value="Soup">Soup</option>
+                                    <option value="Sushi">Sushi</option>
+                                    <option value="Taccos">Taccos</option>
+                                    <option value="Whole cake">Whole cake</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Delivery City</label>
+                                <select id="location" name="location">
+                                    <option value="Ahmedabad" selected>Ahmedabad</option>
+                                    <option value="Bangalore">Bangalore</option>
+                                    <option value="Chennai">Chennai</option>
+                                    <option value="Delhi">Delhi</option>
+                                    <option value="Hyderabad">Hyderabad</option>
+                                    <option value="Jaipur">Jaipur</option>
+                                    <option value="Kolkata">Kolkata</option>
+                                    <option value="Lucknow">Lucknow</option>
+                                    <option value="Mumbai">Mumbai</option>
+                                    <option value="Pune">Pune</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="age">Customer Age: <strong id="val-age">28</strong></label>
+                                <input type="range" id="age" name="age" min="18" max="60" value="28">
+                            </div>
+                            <div class="form-group">
+                                <label for="order_history">Prior Orders: <strong id="val-history">25</strong></label>
+                                <input type="range" id="order_history" name="order_history" min="1" max="50" value="25">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer_rating">Customer Rating</label>
+                                <select id="customer_rating" name="customer_rating">
+                                    <option value="5">5 ★★★★★</option>
+                                    <option value="4" selected>4 ★★★★☆</option>
+                                    <option value="3">3 ★★★☆☆</option>
+                                    <option value="2">2 ★★☆☆☆</option>
+                                    <option value="1">1 ★☆☆☆☆</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="loyalty_program">Loyalty Member</label>
+                                <select id="loyalty_program" name="loyalty_program">
+                                    <option value="Yes" selected>Yes (Gold/Premium)</option>
+                                    <option value="No">No (Standard)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="preferred_cuisine">Preferred Cuisine</label>
+                                <select id="preferred_cuisine" name="preferred_cuisine">
+                                    <option value="Italian" selected>Italian</option>
+                                    <option value="American">American</option>
+                                    <option value="Asian">Asian</option>
+                                    <option value="Mediterranean">Mediterranean</option>
+                                    <option value="Mexican">Mexican</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="order_frequency">Order Frequency</label>
+                                <select id="order_frequency" name="order_frequency">
+                                    <option value="Weekly" selected>Weekly</option>
+                                    <option value="Monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Hidden defaults for pipeline alignment -->
+                        <input type="hidden" name="order_time" id="order_time" value="24-05-2024">
+                        <input type="hidden" name="gender" id="gender" value="Male">
+
+                        <button type="submit" class="btn-predict" id="btn-submit">
+                            <span class="btn-text">⚡ Compute Predicted Delay</span>
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Results Card -->
+                <section class="card result-card">
+                    <div class="card-header">
+                        <h2>🎯 Prediction & Dispatch Decision</h2>
+                        <p>Real-time Random Forest inference with operational guidelines.</p>
+                    </div>
+
+                    <div class="result-display">
+                        <div class="delay-circle orange" id="delay-badge">
+                            <div class="delay-number" id="result-delay">11.64</div>
+                            <div class="delay-unit">minutes delay</div>
+                        </div>
+
+                        <div class="risk-badge-box">
+                            <div class="risk-pill orange" id="risk-pill">Moderate Delay Risk</div>
+                        </div>
+
+                        <div class="intervention-box">
+                            <h4>🚨 Recommended Dispatch Action:</h4>
+                            <p id="action-text">Proactive notification. Send updated dynamic ETA to customer.</p>
+                        </div>
+
+                        <div class="breakdown-card">
+                            <h4>Impact Factors (Slide 9 Comparison)</h4>
+                            <ul class="factor-list">
+                                <li><span>Distance (<span id="summary-distance">10.5</span> km):</span> <strong>High impact</strong></li>
+                                <li><span>Traffic & Weather:</span> <strong id="summary-env">High Traffic / Rainy</strong></li>
+                                <li><span>Route Efficiency:</span> <strong id="summary-eff">0.45</strong></li>
+                                <li><span>Delivery Vehicle:</span> <strong id="summary-method">Bike</strong></li>
+                            </ul>
+                        </div>
+
+                        <div class="operational-tips">
+                            <h4>💡 Real-World Operational Value (Slide 10)</h4>
+                            <p>Provides dynamic ETA to customers, flags at-risk deliveries early, and enables data-driven fleet dispatch decisions.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: WHAT-IF ROUTE & VEHICLE SIMULATOR ==================== -->
+        <div id="tab-simulator" class="tab-content">
+            <section class="card">
+                <div class="card-header">
+                    <h2>🔄 What-If Routing & Vehicle Mode Optimizer</h2>
+                    <p>Compare predicted delays across alternative delivery vehicles (Bike, Car, Walk) and routes under current order conditions to find the lowest-delay option.</p>
+                </div>
+
+                <div class="batch-toolbar">
+                    <div>
+                        <strong>Current Scenario:</strong> <span id="sim-scenario-info">Distance: 10.5 km | Weather: Rainy | Traffic: High</span>
+                    </div>
+                    <button type="button" class="btn-accent" id="btn-run-simulation">
+                        ⚡ Run Route & Vehicle Comparison
+                    </button>
+                </div>
+
+                <div id="sim-results-container" style="display: none;">
+                    <div class="matrix-card">
+                        <div class="matrix-header">
+                            <h3>Comparison Matrix (Ranked by Minimum Predicted Delay)</h3>
+                            <span class="badge-best" id="best-option-tag">Optimal: Bike via Route 1</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" id="simulation-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Vehicle Method</th>
+                                        <th>Route Code</th>
+                                        <th>Route Name</th>
+                                        <th>Predicted Delay</th>
+                                        <th>Risk Tier</th>
+                                        <th>Operational Recommendation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="simulation-tbody">
+                                    <!-- Populated via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== TAB 3: FLEET BATCH DISPATCH ==================== -->
+        <div id="tab-batch" class="tab-content">
+            <section class="card">
+                <div class="card-header">
+                    <h2>📋 Operations Fleet Batch Dispatch</h2>
+                    <p>Score multiple pending orders simultaneously. Upload a CSV file or load sample fleet orders to evaluate fleet-wide delivery delays.</p>
+                </div>
+
+                <div class="batch-toolbar">
+                    <div class="batch-actions">
+                        <button type="button" class="btn-accent" id="btn-load-sample-batch">
+                            📥 Load Sample Fleet Batch (10 Orders)
+                        </button>
+                        <label class="btn-secondary" style="cursor: pointer;">
+                            📁 Upload Custom Orders CSV
+                            <input type="file" id="batch-file-input" accept=".csv" style="display: none;">
+                        </label>
+                    </div>
+                    <button type="button" class="btn-secondary" id="btn-export-csv" style="display: none;">
+                        💾 Export Predictions to CSV
+                    </button>
+                </div>
+
+                <!-- Batch Summary Cards -->
+                <div class="batch-stats-grid" id="batch-stats-container" style="display: none;">
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-lbl">Total Batch Orders</div>
+                        <div class="batch-stat-val text-blue" id="stat-total">0</div>
+                    </div>
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-lbl">Average Delay</div>
+                        <div class="batch-stat-val text-purple" id="stat-avg">0.0 min</div>
+                    </div>
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-lbl">Low Risk Orders</div>
+                        <div class="batch-stat-val text-green" id="stat-low">0</div>
+                    </div>
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-lbl">High Risk (Intervention Needed)</div>
+                        <div class="batch-stat-val text-red" id="stat-high">0</div>
+                    </div>
+                </div>
+
+                <!-- Batch Orders Table -->
+                <div class="table-responsive" id="batch-table-container" style="display: none;">
+                    <table class="data-table" id="batch-results-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Food Item</th>
+                                <th>Distance</th>
+                                <th>Vehicle</th>
+                                <th>Traffic</th>
+                                <th>Weather</th>
+                                <th>Predicted Delay</th>
+                                <th>Risk Tier</th>
+                                <th>Dispatch Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batch-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== TAB 4: MODEL DIAGNOSTICS & ANALYTICS ==================== -->
+        <div id="tab-analytics" class="tab-content">
+            <section class="card gallery-section">
+                <div class="card-header">
+                    <h2>📊 Diagnostic Visualizations & EDA Insights</h2>
+                    <p>Generated dynamically from model evaluation on 40,000 unseen test observations from actual dataset.</p>
+                </div>
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <h4>1. Top Feature Importances (MDI)</h4>
+                        <img src="/static/reports/figures/feature_importance.png" alt="Feature Importance" onerror="this.src='https://via.placeholder.com/600x400?text=Plot+Generating...'">
+                    </div>
+                    <div class="gallery-item">
+                        <h4>2. Actual vs. Predicted Delay (Test Set)</h4>
+                        <img src="/static/reports/figures/actual_vs_predicted.png" alt="Actual vs Predicted" onerror="this.src='https://via.placeholder.com/600x400?text=Plot+Generating...'">
+                    </div>
+                    <div class="gallery-item">
+                        <h4>3. Residuals Error Distribution</h4>
+                        <img src="/static/reports/figures/residuals_distribution.png" alt="Residual Analysis" onerror="this.src='https://via.placeholder.com/600x400?text=Plot+Generating...'">
+                    </div>
+                    <div class="gallery-item">
+                        <h4>4. Average Delay: Traffic vs. Weather</h4>
+                        <img src="/static/reports/figures/traffic_weather_delays.png" alt="Traffic & Weather Interactions" onerror="this.src='https://via.placeholder.com/600x400?text=Plot+Generating...'">
+                    </div>
+                    <div class="gallery-item">
+                        <h4>5. Correlation Heatmap</h4>
+                        <img src="/static/reports/figures/correlation_heatmap.png" alt="Correlation Matrix" onerror="this.src='https://via.placeholder.com/600x400?text=Plot+Generating...'">
+                    </div>
+                    <div class="gallery-item">
+                        <h4>6. Target Delay Distribution (Minutes)</h4>
+                        <img src="/static/reports/figures/delay_distribution.png" alt="Target Distribution" onerror="this.src='https://via.placeholder.com/600x400?text=Plot+Generating...'">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Food Delivery Delay Prediction | Developed by <strong>Jaival Patel</strong></p>
+        <p>Built with Python, Scikit-Learn Random Forest Regressor, Pandas, and Flask.</p>
+    </footer>
+
+    <script>
+        // Tab switching logic
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                const targetId = tab.getAttribute('data-tab');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Synchronize range sliders with labels
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const label = document.getElementById('val-' + e.target.id.replace('delivery_', '').replace('order_', ''));
+                if (label) {
+                    if (e.target.id === 'order_value') {
+                        label.innerText = '₹' + e.target.value;
+                    } else {
+                        label.innerText = e.target.value;
+                    }
+                }
+                updateSummaryDetails();
+            });
+        });
+
+        function updateSummaryDetails() {
+            const dist = document.getElementById('delivery_distance').value;
+            const traffic = document.getElementById('traffic_condition').value;
+            const weather = document.getElementById('weather_condition').value;
+            const eff = document.getElementById('route_efficiency').value;
+            const method = document.getElementById('delivery_method').value;
+
+            document.getElementById('summary-distance').innerText = dist;
+            document.getElementById('summary-env').innerText = `${traffic} Traffic / ${weather}`;
+            document.getElementById('summary-eff').innerText = eff;
+            document.getElementById('summary-method').innerText = method;
+
+            document.getElementById('sim-scenario-info').innerText = 
+                `Distance: ${dist} km | Weather: ${weather} | Traffic: ${traffic}`;
+        }
+
+        ['traffic_condition', 'weather_condition', 'delivery_method'].forEach(id => {
+            document.getElementById(id).addEventListener('change', updateSummaryDetails);
+        });
+
+        // Presets
+        document.getElementById('btn-slide9').addEventListener('click', () => {
+            document.getElementById('delivery_distance').value = 10.5;
+            document.getElementById('val-distance').innerText = '10.5';
+            document.getElementById('traffic_condition').value = 'High';
+            document.getElementById('weather_condition').value = 'Rainy';
+            document.getElementById('delivery_method').value = 'Bike';
+            document.getElementById('route_efficiency').value = 0.45;
+            document.getElementById('val-efficiency').innerText = '0.45';
+            document.getElementById('order_value').value = 680;
+            document.getElementById('val-order-value').innerText = '₹680';
+            document.getElementById('food_item').value = 'Pizza';
+            document.getElementById('location').value = 'Ahmedabad';
+            document.getElementById('route_type').value = 'Mixed';
+            updateSummaryDetails();
+            document.getElementById('btn-submit').click();
+        });
+
+        document.getElementById('btn-clear-sunny').addEventListener('click', () => {
+            document.getElementById('delivery_distance').value = 3.2;
+            document.getElementById('val-distance').innerText = '3.2';
+            document.getElementById('traffic_condition').value = 'Low';
+            document.getElementById('weather_condition').value = 'Sunny';
+            document.getElementById('delivery_method').value = 'Bike';
+            document.getElementById('route_efficiency').value = 0.85;
+            document.getElementById('val-efficiency').innerText = '0.85';
+            document.getElementById('order_value').value = 350;
+            document.getElementById('val-order-value').innerText = '₹350';
+            document.getElementById('food_item').value = 'Burger';
+            document.getElementById('location').value = 'Delhi';
+            document.getElementById('route_type').value = 'Bike-friendly';
+            updateSummaryDetails();
+            document.getElementById('btn-submit').click();
+        });
+
+        document.getElementById('btn-worst-case').addEventListener('click', () => {
+            document.getElementById('delivery_distance').value = 14.5;
+            document.getElementById('val-distance').innerText = '14.5';
+            document.getElementById('traffic_condition').value = 'High';
+            document.getElementById('weather_condition').value = 'Snowy';
+            document.getElementById('delivery_method').value = 'Car';
+            document.getElementById('route_efficiency').value = 0.20;
+            document.getElementById('val-efficiency').innerText = '0.20';
+            document.getElementById('order_value').value = 950;
+            document.getElementById('val-order-value').innerText = '₹950';
+            document.getElementById('food_item').value = 'Taccos';
+            document.getElementById('location').value = 'Kolkata';
+            document.getElementById('route_type').value = 'Car-only';
+            updateSummaryDetails();
+            document.getElementById('btn-submit').click();
+        });
+
+        // Helper to extract form data
+        function getFormDataObj() {
+            const formData = new FormData(document.getElementById('prediction-form'));
+            const data = Object.fromEntries(formData.entries());
+            data.delivery_distance = parseFloat(data.delivery_distance);
+            data.route_efficiency = parseFloat(data.route_efficiency);
+            data.order_value = parseFloat(data.order_value);
+            data.age = parseInt(data.age);
+            data.order_history = parseInt(data.order_history);
+            data.customer_rating = parseInt(data.customer_rating);
+            return data;
+        }
+
+        // Single prediction submit
+        document.getElementById('prediction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = getFormDataObj();
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const res = await response.json();
+                if (res.status === 'success') {
+                    document.getElementById('result-delay').innerText = res.data.predicted_delay_minutes;
+                    const riskPill = document.getElementById('risk-pill');
+                    riskPill.innerText = res.data.risk_level;
+                    riskPill.className = 'risk-pill ' + res.data.risk_color;
+
+                    const delayBadge = document.getElementById('delay-badge');
+                    delayBadge.className = 'delay-circle ' + res.data.risk_color;
+
+                    document.getElementById('action-text').innerText = res.data.recommended_action;
+                }
+            } catch (err) {
+                console.error('Prediction request failed:', err);
+            }
+        });
+
+        // Run Route & Vehicle Simulator
+        document.getElementById('btn-run-simulation').addEventListener('click', async () => {
+            const data = getFormDataObj();
+            try {
+                const res = await fetch('/simulate_routes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const tbody = document.getElementById('simulation-tbody');
+                    tbody.innerHTML = '';
+                    
+                    if (json.optimal_choice) {
+                        document.getElementById('best-option-tag').innerText = 
+                            `Optimal: ${json.optimal_choice.delivery_method} via ${json.optimal_choice.route_name} (${json.optimal_choice.predicted_delay} min)`;
+                    }
+
+                    json.scenarios.forEach((sc, idx) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>#${idx + 1}</strong></td>
+                            <td>${sc.delivery_method}</td>
+                            <td><code>${sc.route_code}</code></td>
+                            <td>${sc.route_name}</td>
+                            <td><strong>${sc.predicted_delay} min</strong></td>
+                            <td><span class="risk-pill ${sc.risk_color}">${sc.risk_level}</span></td>
+                            <td>${idx === 0 ? '🏆 <strong>Recommended Choice</strong>' : 'Viable alternative'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    document.getElementById('sim-results-container').style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Simulation failed:', err);
+            }
+        });
+
+        // Batch Dispatch Logic
+        let currentBatchRecords = [];
+
+        function renderBatchResults(summary, records) {
+            currentBatchRecords = records;
+            document.getElementById('stat-total').innerText = summary.total_orders;
+            document.getElementById('stat-avg').innerText = summary.average_delay_minutes + ' min';
+            document.getElementById('stat-low').innerText = summary.low_risk_count;
+            document.getElementById('stat-high').innerText = `${summary.high_risk_count} (${summary.high_risk_percentage}%)`;
+
+            const tbody = document.getElementById('batch-tbody');
+            tbody.innerHTML = '';
+
+            records.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${r.order_id || 'N/A'}</strong></td>
+                    <td>${r.food_item}</td>
+                    <td>${r.delivery_distance} km</td>
+                    <td>${r.delivery_method}</td>
+                    <td>${r.traffic_condition}</td>
+                    <td>${r.weather_condition}</td>
+                    <td><strong>${r.predicted_delay_minutes} min</strong></td>
+                    <td><span class="risk-pill ${r.risk_color}">${r.risk_level}</span></td>
+                    <td>${r.recommended_action}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('batch-stats-container').style.display = 'grid';
+            document.getElementById('batch-table-container').style.display = 'block';
+            document.getElementById('btn-export-csv').style.display = 'inline-block';
+        }
+
+        // Load sample batch
+        document.getElementById('btn-load-sample-batch').addEventListener('click', async () => {
+            try {
+                const sampleRes = await fetch('/sample_batch_data');
+                const sampleJson = await sampleRes.json();
+                if (sampleJson.status === 'success') {
+                    const batchRes = await fetch('/predict_batch', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(sampleJson.orders)
+                    });
+                    const batchData = await batchRes.json();
+                    if (batchData.status === 'success') {
+                        renderBatchResults(batchData.summary, batchData.records);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed loading batch:', err);
+            }
+        });
+
+        // Upload custom CSV
+        document.getElementById('batch-file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/predict_batch', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    renderBatchResults(data.summary, data.records);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                console.error('Batch CSV upload failed:', err);
+            }
+        });
+
+        // Export to CSV
+        document.getElementById('btn-export-csv').addEventListener('click', () => {
+            if (!currentBatchRecords || currentBatchRecords.length === 0) return;
+            const headers = Object.keys(currentBatchRecords[0]);
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+            currentBatchRecords.forEach(row => {
+                const values = headers.map(h => `"${(row[h] !== undefined ? row[h] : '')}"`);
+                csvContent += values.join(",") + "\n";
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "predicted_delivery_batch_delays.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Initialize state
+        updateSummaryDetails();
+    </script>
+</body>
+</html>
