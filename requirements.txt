@@ -11,8 +11,8 @@ seaborn>=0.13.0
 
 # Web Application & API
 flask>=3.0.0
+gunicorn>=23.0.0; platform_system != "Windows"
 
 # Testing & Utilities
 pytest>=8.0.0
 rich>=13.0.0
-

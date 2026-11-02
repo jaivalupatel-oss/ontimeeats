@@ -219,7 +219,42 @@ Execute the full 18-test validation suite:
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-### 4. Launch the Interactive Web Dashboard
+### 4. CI/CD with GitHub Actions and Render
+GitHub Actions runs the test suite on pushes and pull requests targeting `main`. After tests pass on a push to `main` (or a manual run on `main`), it triggers a Render deployment:
+
+```bash
+python -m pytest -q
+```
+
+The workflow is defined in `.github/workflows/ci.yml` and uses Python 3.13 with dependencies from `requirements.txt`.
+
+#### One-time Render setup
+1. In Render, create a **Web Service** from this GitHub repository using the Python runtime.
+2. Set the build command to `python -m pip install -r requirements.txt`.
+3. Set the start command to `gunicorn --bind 0.0.0.0:$PORT app.app:app`.
+4. Disable Render's automatic deploys so deployments happen only after the GitHub Actions tests pass.
+5. In the Render service settings, create a deploy hook. In the GitHub repository, add a repository Actions secret named `RENDER_DEPLOY_HOOK_URL` with that hook URL.
+
+The deploy-hook URL is a secret: do not commit it or put it in workflow logs. Render deployments require that the Web Service and GitHub secret are configured first.
+
+### 5. Run with Docker
+Build and start the web app with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000). To stop the container, press `Ctrl+C`; to remove it, run:
+
+```bash
+docker compose down
+```
+
+The Compose service includes a health check and restarts unless stopped. Docker packages the trained model, sample batch data, and dashboard figures; raw datasets, processed datasets, notebooks, and tests are excluded from the build context. The trained model is about 616 MB, so the first build and image transfer may take some time. Docker Desktop must be running.
+
+To use a different host port in PowerShell, run `$env:APP_PORT="8080"` before `docker compose up --build`.
+
+### 6. Launch the Interactive Web Dashboard
 Start the local Flask application:
 ```bash
 python app/app.py
@@ -295,4 +330,3 @@ This codebase is directly aligned with the 10-slide academic project presentatio
 
 ---
 *Created by Aadi Shah | B.Tech CSE (23000255)*
-
