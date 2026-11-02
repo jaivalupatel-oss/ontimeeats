@@ -1,0 +1,28 @@
+# Byte-compiled / optimised / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large model artifact (tracked via Git LFS or downloaded at deploy time)
+models/random_forest_regressor.joblib
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
